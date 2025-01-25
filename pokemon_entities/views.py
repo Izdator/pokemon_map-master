@@ -35,7 +35,7 @@ def show_all_pokemons(request):
     for pokemon in pokemons:
         for pokemon_entity in pokemon.entities.all():
             image_url = pokemon.image.url if pokemon.image else DEFAULT_IMAGE_URL
-            absolute_image_url = request.build_absolute_uri(image_url)
+            absolute_image_url = request.build_absolute_uri(image_url)  #update in previous step
             add_pokemon(
                 folium_map, pokemon_entity.lat,
                 pokemon_entity.lon,
