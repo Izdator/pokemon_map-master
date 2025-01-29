@@ -65,7 +65,8 @@ def show_pokemon(request, pokemon_id):
         'pokemon_id': pokemon.id,
         'img_url': request.build_absolute_uri(pokemon.image.url) if pokemon.image else DEFAULT_IMAGE_URL,
         'title_ru': pokemon.title,
-        'entities': []
+        'entities': [],
+        'description': pokemon.description
     }
 
     for pokemon_entity in pokemon.entities.all():
