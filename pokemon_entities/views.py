@@ -34,7 +34,7 @@ def show_all_pokemons(request):
 
     for pokemon in pokemons:
         for pokemon_entity in pokemon.entities.all():
-            if pokemon_entity.appeared_at is not None and pokemon_entity.disappeared_at is not None:
+            if pokemon_entity.appeared_at and pokemon_entity.disappeared_at:
                 if pokemon_entity.appeared_at <= local_time < pokemon_entity.disappeared_at:
                     image_url = pokemon.image.url if pokemon.image else DEFAULT_IMAGE_URL
                     absolute_image_url = request.build_absolute_uri(image_url)
