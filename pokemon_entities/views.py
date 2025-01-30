@@ -4,7 +4,7 @@ import json
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
-from .models import Pokemon, PokemonEntity
+from .models import Pokemon, PokemonEntity, Evolution
 
 MOSCOW_CENTER = [55.751244, 37.618423]
 DEFAULT_IMAGE_URL = (
@@ -21,8 +21,6 @@ def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
     )
     folium.Marker(
         [lat, lon],
-        # Warning! `tooltip` attribute is disabled intentionally
-        # to fix strange folium cyrillic encoding bug
         icon=icon,
     ).add_to(folium_map)
 
@@ -79,23 +77,23 @@ def show_pokemon(request, pokemon_id):
             'lon': pokemon_entity.lon
         })
 
-    if pokemon.evolution:
+    next_evolution = Evolution.objects.filter(pokemon=pokemon).first()
+    if next_evolution and next_evolution.next_evolution:
         requested_pokemon['next_evolution'] = {
-            'title_ru': pokemon.evolution.title_ru,
-            'pokemon_id': pokemon.evolution.id,
+            'title_ru': next_evolution.next_evolution.title_ru,
+            'pokemon_id': next_evolution.next_evolution.id,
             'img_url': request.build_absolute_uri(
-                pokemon.evolution.image.url) if pokemon.evolution.image else DEFAULT_IMAGE_URL
+                next_evolution.next_evolution.image.url) if next_evolution.next_evolution.image else DEFAULT_IMAGE_URL
         }
 
-    previous_evolution = Pokemon.objects.filter(evolution=pokemon).first()
+    previous_evolution = Evolution.objects.filter(next_evolution=pokemon).first()
     if previous_evolution:
         requested_pokemon['previous_evolution'] = {
-            'title_ru': previous_evolution.title_ru,
-            'pokemon_id': previous_evolution.id,
+            'title_ru': previous_evolution.pokemon.title_ru,
+            'pokemon_id': previous_evolution.pokemon.id,
             'img_url': request.build_absolute_uri(
-                previous_evolution.image.url) if previous_evolution.image else DEFAULT_IMAGE_URL
+                previous_evolution.pokemon.image.url) if previous_evolution.pokemon.image else DEFAULT_IMAGE_URL
         }
-
 
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
     for pokemon_entity in requested_pokemon['entities']:
