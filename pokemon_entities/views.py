@@ -1,10 +1,8 @@
 import folium
-import json
-
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
-from .models import Pokemon, PokemonEntity, Evolution
+from .models import Pokemon, PokemonEntity
 
 MOSCOW_CENTER = [55.751244, 37.618423]
 DEFAULT_IMAGE_URL = (
@@ -77,22 +75,11 @@ def show_pokemon(request, pokemon_id):
             'lon': pokemon_entity.lon
         })
 
-    next_evolution = Evolution.objects.filter(pokemon=pokemon).first()
-    if next_evolution and next_evolution.next_evolution:
-        requested_pokemon['next_evolution'] = {
-            'title_ru': next_evolution.next_evolution.title_ru,
-            'pokemon_id': next_evolution.next_evolution.id,
-            'img_url': request.build_absolute_uri(
-                next_evolution.next_evolution.image.url) if next_evolution.next_evolution.image else DEFAULT_IMAGE_URL
-        }
-
-    previous_evolution = Evolution.objects.filter(next_evolution=pokemon).first()
-    if previous_evolution:
+    if pokemon.previous_evolution:
         requested_pokemon['previous_evolution'] = {
-            'title_ru': previous_evolution.pokemon.title_ru,
-            'pokemon_id': previous_evolution.pokemon.id,
-            'img_url': request.build_absolute_uri(
-                previous_evolution.pokemon.image.url) if previous_evolution.pokemon.image else DEFAULT_IMAGE_URL
+            'title_ru': pokemon.previous_evolution.title_ru,
+            'pokemon_id': pokemon.previous_evolution.id,
+            'img_url': request.build_absolute_uri(pokemon.previous_evolution.image.url) if pokemon.previous_evolution.image else DEFAULT_IMAGE_URL
         }
 
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)

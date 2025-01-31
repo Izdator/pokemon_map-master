@@ -3,21 +3,14 @@ from django.db import models
 
 class Pokemon(models.Model):
     title_ru = models.CharField(max_length=200, verbose_name='Название на русском')
-    title_en = models.CharField(max_length=200, blank=True,
-                                verbose_name='Название на английском')
-    title_jp = models.CharField(max_length=200, blank=True,
-                                verbose_name='Название на японском')
+    title_en = models.CharField(max_length=200, blank=True, verbose_name='Название на английском')
+    title_jp = models.CharField(max_length=200, blank=True, verbose_name='Название на японском')
     image = models.ImageField(upload_to='pokemon_images/', blank=True, null=True, verbose_name='Изображение')
     description = models.TextField(blank=True, verbose_name='Описание')
+    previous_evolution = models.ForeignKey('self', related_name='next_evolution', on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Предыдущая эволюция')
 
     def __str__(self):
         return f'{self.title_ru}'
-
-
-class Evolution(models.Model):
-    pokemon = models.ForeignKey(Pokemon, related_name='evolutions', on_delete=models.CASCADE, verbose_name='Покемон')
-    next_evolution = models.ForeignKey(Pokemon, related_name='previous_evolutions', on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Следующая эволюция')
-    previous_evolution = models.ForeignKey(Pokemon, related_name='next_evolutions', on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Предыдущая эволюция')
 
 
 class PokemonEntity(models.Model):
